@@ -1,45 +1,48 @@
+# Convert an IPv4 address (string) into a 32-bit integer
 def ip_to_int(ip):
-    wynik = 0
+    result = 0
 
-    for oktet in ip.split("."):
-        wynik = (wynik << 8) | int(oktet)
+    for octet in ip.split("."):
+        result = (result << 8) | int(octet)
 
-    return wynik
+    return result
 
 
-def int_to_ip(liczba):
+# Convert a 32-bit integer back into an IPv4 address
+def int_to_ip(number):
     return ".".join(
-        str((liczba >> przesuniecie) & 255)
-        for przesuniecie in (24, 16, 8, 0)
+        str((number >> shift) & 255)
+        for shift in (24, 16, 8, 0)
     )
 
+print("=" * 50)
+print("CIDR NETWORK CALCULATOR v.1")
+print("=" * 50)
 
-cidr = input("Podaj adres (np. 192.168.10.55/24): ")
+cidr = input("\nEnter an address (e.g. 192.168.10.55/24): ")
 
 ip_str, prefix_str = cidr.split("/")
 prefix = int(prefix_str)
 
 ip = ip_to_int(ip_str)
 
-# maska
-maska = (0xFFFFFFFF << (32 - prefix)) & 0xFFFFFFFF
+mask = (0xFFFFFFFF << (32 - prefix)) & 0xFFFFFFFF
 
-# adres sieci
-adres_sieci = ip & maska
+network_address = ip & mask
 
-# broadcast
-broadcast = adres_sieci | (~maska & 0xFFFFFFFF)
+broadcast = network_address | (~mask & 0xFFFFFFFF)
 
-# hosty
-pierwszy_host = adres_sieci + 1
-ostatni_host = broadcast - 1
+first_host = network_address + 1
+last_host = broadcast - 1
 
-print("IP:", ip_str)
-print("Maska:", int_to_ip(maska))
-print("Adres sieci:", int_to_ip(adres_sieci))
-print("Broadcast:", int_to_ip(broadcast))
-print("Zakres hostów:",
-      int_to_ip(pierwszy_host),
-      "-",
-      int_to_ip(ostatni_host))
-print("Przykładowy gateway:", int_to_ip(pierwszy_host))
+print("IP Address:", ip_str)
+print("Subnet Mask:", int_to_ip(mask))
+print("Network Address:", int_to_ip(network_address))
+print("Broadcast Address:", int_to_ip(broadcast))
+print(
+    "Host Range:",
+    int_to_ip(first_host),
+    "-",
+    int_to_ip(last_host)
+)
+print("Example Gateway:", int_to_ip(first_host))
